@@ -11,6 +11,9 @@ void ofApp::setup() {
     
     gui.setup();
     gui.add(offset.setup("offset", 640, 0, 1280));
+    gui.add(playToggle.setup("play / pause", false));
+    
+    playToggle.addListener(this, &ofApp::playButtonPressed);
 }
 
 void ofApp::update() {
@@ -26,11 +29,12 @@ void ofApp::draw() {
         ofClear(0, 0);
         video1.draw(offset, 0);
         video2.draw(offset - video1.getWidth(), 0);
-        
-        
         fbo.end();
-
-        fbo.draw(0, 0);
+        fbo.draw(10, 10);
+        
+        ofNoFill();
+        ofDrawRectangle(10-1, 10-1, video1.getWidth() + 2, video1.getHeight() + 2);
+        ofFill();
         
         ofPixels pix;
         fbo.readToPixels(pix);
@@ -47,12 +51,13 @@ void ofApp::dragEvent(ofDragInfo dragInfo) {
     video2.load(dragInfo.files[0]);
     video1.setLoopState(OF_LOOP_NONE);
     video2.setLoopState(OF_LOOP_NONE);
+    
     fbo.allocate(video1.getWidth(), video1.getHeight());
+    
+    ofSetWindowShape(video1.getWidth() + 20, video1.getHeight() + 100);
+    gui.setPosition(0, video1.getHeight() + 10);
+
     isFileLoaded = true;
-    vidRecorder.setup(dragInfo.files[0] + ofGetTimestampString() + ".MP4", video1.getWidth(), video1.getHeight(), 30);
-    vidRecorder.start();
-    video1.play();
-    video2.play();
 }
 
 void ofApp::keyReleased (int key) {
@@ -68,4 +73,18 @@ void ofApp::recordingComplete(ofxVideoRecorderOutputFileCompleteEventArgs& args)
 void ofApp::exit() {
     ofRemoveListener(vidRecorder.outputFileCompleteEvent, this, &ofApp::recordingComplete);
     vidRecorder.close();
+}
+
+void ofApp::playButtonPressed() {
+    if (video1.isPlaying()) {
+        video1.setPaused(true);
+        video2.setPaused(true);
+    } else {
+        vidRecorder.setup(ofGetTimestampString() + ".MP4", video1.getWidth(), video1.getHeight(), 30);
+        vidRecorder.start();
+        video1.setPosition(0.0);
+        video2.setPosition(0.0);
+        video1.play();
+        video2.play();
+    }
 }

@@ -13,6 +13,7 @@ public:
     void dragEvent(ofDragInfo dragInfo);
     void recordingComplete(ofxVideoRecorderOutputFileCompleteEventArgs& args);
     void exit();
+    void playButtonPressed();
 private:
     ofVideoPlayer video1, video2;
     ofFbo fbo;
@@ -20,5 +21,6 @@ private:
     bool hideGui = false;
     ofxPanel gui;
     ofxFloatSlider offset;
+    ofxButton playToggle;
     ofxVideoRecorder vidRecorder;
 };
